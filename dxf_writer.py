@@ -1,12 +1,12 @@
 from dxfwrite import DXFEngine
 
-def writeDXF(filename, lines_w_elevation):
-    drawing = DXFEngine.drawing('test.dxf')
-    for entity in lines_w_elevation:
+def WriteDXF(filename, lines, elevations):
+    drawing = DXFEngine.drawing(filename)
+    for idx in xrange(len( lines )):
         points = []
-        for point in lines_w_elevation.points:
-            points.append((point[0], point[1], lines_w_elevation.elevation))
-        drawing.add(DXFEngine.polyline(points))
+        for point in lines[idx]:
+            points.append((point[0], point[1]))
+        drawing.add(DXFEngine.polyline(points, polyline_elevation = (0,0,elevations[idx])))
     drawing.save()
 
 #dxf = dxfgrabber.readfile(filename)

@@ -86,17 +86,17 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
 
             self.Canvas = NC.Canvas # reference the contained FloatCanvas
 
-            self.MsgWindow = wx.TextCtrl(self, wx.ID_ANY,
-                                         "Look Here for output from events\n",
+            self.ElevationWindow = wx.TextCtrl(self, wx.ID_ANY,
+                                         "?\n",
                                          style = (
                                                   wx.SUNKEN_BORDER)
                                          )
-            self.MsgWindow.Bind(wx.EVT_TEXT, self.OnMsgUpdate)
+            self.ElevationWindow.Bind(wx.EVT_TEXT, self.OnMsgUpdate)
             
             ##Create a sizer to manage the Canvas and message window
             MainSizer = wx.BoxSizer(wx.VERTICAL)
             MainSizer.Add(NC, 4, wx.EXPAND)
-            MainSizer.Add(self.MsgWindow, 1, wx.EXPAND | wx.ALL, 5)
+            MainSizer.Add(self.ElevationWindow, 1, wx.EXPAND | wx.ALL, 5)
 
             self.SetSizer(MainSizer)
             self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
@@ -113,15 +113,9 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
         def OnMsgUpdate(self, object):
             if self.lastline != None:
                 try:
-                    self.elevations[self.lastline.line_idx] = float(self.MsgWindow.GetValue())
+                    self.elevations[self.lastline.line_idx] = float(self.ElevationWindow.GetValue())
                 except ValueError:
                     self.elevations[self.lastline.line_idx]
-
-        def Log(self, text):
-            self.MsgWindow.AppendText(text)
-            if not text[-1] == "\n":
-                self.MsgWindow.AppendText("\n")
-            
 
         def BindAllMouseEvents(self):
             if not self.EventsAreBound:
@@ -157,10 +151,6 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
 
             self.EventsAreBound = False
 
-
-        def PrintCoords(self,event):
-            self.Log("coords are: %s"%(event.Coords,))
-            self.Log("pixel coords are: %s\n"%(event.GetPosition(),))
 
         def DrawLines(self):
             for i in range(len(self.lines)):
@@ -264,35 +254,6 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
         def OnCloseWindow(self, event):
             self.Destroy()
  
-        def ShowFrame(self):
-            Object = self.MovingObject
-            Range = self.Range
-            if  self.TimeStep < self.NumTimeSteps:
-                x,y = Object.XY
-                if x > Range[1] or x < Range[0]:
-                    self.dx = -self.dx
-                if y > Range[1] or y < Range[0]:
-                    self.dy = -self.dy
-                Object.Move( (self.dx,self.dy) )
-                Object.Text.Move( (self.dx,self.dy))
-                self.Canvas.Draw()
-                self.TimeStep += 1
-                wx.GetApp().Yield(True)
-            else:
-                self.Timer.Stop()
-
-        def MoveMe(self, Object):
-            self.MovingObject = Object
-            Range = self.Range
-            self.dx = random.uniform(Range[0]/4,Range[1]/4)
-            self.dy = random.uniform(Range[0]/4,Range[1]/4)
-            #import time
-            #start = time.time()
-            self.NumTimeSteps = 200
-            self.TimeStep = 1
-            self.Timer.Start(self.FrameDelay)
-            #print "Did %i frames in %f seconds"%(N, (time.time() - start) )
-
         def TestHitTest(self, event=None):
             wx.GetApp().Yield(True)
 
@@ -300,12 +261,6 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             Canvas = self.Canvas
 
             Canvas.InitAll()
-
-            #Add a Hit-able rectangle
-            #h = 20
-            FontSize = 8
-
-            Point = (0, 0)
 
             imageFile = 'back.tif'
             data = open(imageFile, "rb").read()
@@ -332,52 +287,10 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             if self.lastline!=None:
                 self.lastline.SetLineColor(_ColorFromElevation(self.elevations[self.lastline.line_idx]))
             self.lastline = Object
-            self.MsgWindow.ChangeValue(str(self.elevations[Object.line_idx]))
+            self.ElevationWindow.ChangeValue(str(self.elevations[Object.line_idx]))
             Object.SetLineColor("Green")
             self.Canvas.Draw(Force = True)
 
-        def RectMoveLeft(self,Object):
-            self.MoveRects("left")
-
-        def RectMoveRight(self,Object):
-            self.MoveRects("right")
-
-        def RectMoveUp(self,Object):
-            self.MoveRects("up")
-
-        def RectMoveDown(self,Object):
-            self.MoveRects("down")
-
-        def MoveRects(self, Dir):
-            for Object in self.MovingRects:
-                X,Y = Object.XY
-                if Dir == "left": X -= 10
-                elif Dir == "right": X += 10
-                elif Dir == "up": Y += 10
-                elif Dir == "down": Y -= 10
-                Object.SetPoint((X,Y))
-            self.Canvas.Draw()
-
-        def PointSetGotHit(self, Object):
-            self.Log(Object.Name + "Got Hit\n")
-
-        def RectGotHit(self, Object):
-            self.Log(Object.Name + "Got Hit\n")
-
-        def RectGotHitRight(self, Object):
-            self.Log(Object.Name + "Got Hit With Right\n")
-
-        def ItemGotHit(self, Object):
-            self.Log(Object.Name + "Got Hit with Left\n")
-
-        def RectMouseOver(self, Object):
-            self.Log("Mouse entered:" +  Object.Name)
-
-        def RectMouseLeave(self, Object):
-            self.Log("Mouse left " +  Object.Name)
-
-        def RectGotHitLeft(self, Object):
-            self.Log(Object.Name + "Got Hit with Left\n")
 
     return DrawFrame 
 
