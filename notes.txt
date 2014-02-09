@@ -1,0 +1,36 @@
+Notes:
+ocads dxf file looks like incomplete
+therefore we use qgis to open/save it.
+
+Architecture decisions:
+loooks like we can draw lines with floatcanvas in a faster way.
+probably will need numpy.
+
+for finding out size of geotiff we need these
+first gdal:
+http://download.osgeo.org/gdal/win32/1.6/gdalwin32exe160.zip
+then python bindings:
+http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+work to do:
+4. minimize maximum zoom.
+6. clean up the demo app
+8. make altitude changer focus
+9. make altitude changer not take much space
+10. make different dxf types be different
+11. make the sample tif file smaller low pri - unclear if needed at all.
+12. make the log warning message go away
+16. coding style
+17. seperate elv file module
+
+work done:
+1. add clickable events changing color of lines
+3. add altitude changer any type
+5. add saving polylines after work is done
+2. add polyline support for reading from dxf
+7. store dxf file
+14. somehow allow to choose file
+    add open for dxf file or our format file
+15. why is reading the file so slow? we could try to save into lwpolylines. or we could try our own format for temporary work.
+    went with "elv" file format
+13. make colors different for lines w elevation
