@@ -87,11 +87,12 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             self.Canvas = NC.Canvas # reference the contained FloatCanvas
 
             self.ElevationWindow = wx.TextCtrl(self, wx.ID_ANY,
-                                         "?\n",
-                                         style = (
+                                         "?",
+                                         style = (wx.TE_MULTILINE |
                                                   wx.SUNKEN_BORDER)
                                          )
             self.ElevationWindow.Bind(wx.EVT_TEXT, self.OnMsgUpdate)
+            self.ElevationWindow.Bind(wx.EVT_KILL_FOCUS, self.OnKillFocus)
             
             ##Create a sizer to manage the Canvas and message window
             MainSizer = wx.BoxSizer(wx.VERTICAL)
@@ -110,6 +111,11 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             self.lastline = None
 
             return None
+        def OnKillFocus(self, object):
+            if type(object.GetWindow()) is wx.lib.floatcanvas.FloatCanvas.FloatCanvas:
+                self.ElevationWindow.SetFocus()
+                self.ElevationWindow.SelectAll()
+                
         def OnMsgUpdate(self, object):
             if self.lastline != None:
                 try:
@@ -155,10 +161,10 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
         def DrawLines(self):
             for i in range(len(self.lines)):
                 L = self.Canvas.AddLine(self.lines[i], LineWidth = 2, LineColor = _ColorFromElevation(self.elevations[i]))
-                L.line_idx = len(self.lines)-1
+                L.line_idx = i
                 L.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.LineGotHit)
             self.Canvas.Draw(Force = True)
-                
+
         def DrawDxf(self, path):
             from dxf_reader import DXFReader
             dxf = DXFReader("sample_export_from_ocad2.dxf")
@@ -268,12 +274,9 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             stream = cStringIO.StringIO(data)
             # show the bitmap, (5, 5) are upper left corner coordinates
             image = wx.ImageFromStream( stream )
-
             # would this become fast if we did not have a scaled bitmap?
             ORIGINAL_Y = 200
             BitMap = Canvas.AddScaledBitmap(image, (0, ORIGINAL_Y), Height=ORIGINAL_Y)
-
-            x, y = 0, 0
 
             from tiff_size import GetTiffSize
             sizing = GetTiffSize(imageFile)
@@ -284,12 +287,14 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             self.Canvas.ZoomToBB()
 
         def LineGotHit(self, Object):
+            print "LineGotHit"
             if self.lastline!=None:
                 self.lastline.SetLineColor(_ColorFromElevation(self.elevations[self.lastline.line_idx]))
             self.lastline = Object
             self.ElevationWindow.ChangeValue(str(self.elevations[Object.line_idx]))
+            self.ElevationWindow.SetFocus()
             Object.SetLineColor("Green")
-            self.Canvas.Draw(Force = True)
+            self.Canvas.Draw(Force=True)
 
 
     return DrawFrame 
