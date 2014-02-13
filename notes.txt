@@ -34,3 +34,9 @@ work done:
     went with "elv" file format
 13. make colors different for lines w elevation
 8. make altitude changer focus
+
+dependencies:
+wxpython
+numpy from http://www.lfd.uci.edu/~gohlke/pythonlibs/ (if you need 64 bit) or http://numpy.scipy.org/
+gdal from http://www.lfd.uci.edu/~gohlke/pythonlibs/
+gdal from http://www.lfd.uci.edu/~gohlke/pythonlibs/

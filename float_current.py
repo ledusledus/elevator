@@ -268,7 +268,7 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
 
             Canvas.InitAll()
 
-            imageFile = 'back.tif'
+            imageFile = 'kopejais.tif' # this was back.tif
             data = open(imageFile, "rb").read()
             # convert to a data stream
             stream = cStringIO.StringIO(data)
