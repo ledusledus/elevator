@@ -167,7 +167,7 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
 
         def DrawDxf(self, path):
             from dxf_reader import DXFReader
-            dxf = DXFReader("sample_export_from_ocad2.dxf")
+            dxf = DXFReader(path)
             self.lines = []
             self.elevations = []
             for entity in dxf.lines():
@@ -225,7 +225,7 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             if dlg.ShowModal() == wx.ID_OK:
                 path = dlg.GetPath()
                 if path[-4:].lower() == ".dxf": #todo: make "isDxfFile" 
-                    dxf_writer.WriteDXF(path, self.lines, self.elevations)
+                    dxf_writer.WriteDXF(path, self.lines, self.elevations, self.scaler)
                 if path[-4:].lower() == ".elv":
                     self.WriteElv(path, self.lines, self.elevations)
 

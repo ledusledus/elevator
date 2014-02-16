@@ -21,6 +21,8 @@ work to do:
 12. make the log warning message go away
 16. coding style
 17. seperate elv file module
+19. allow moving stuff around
+20. a bug writing dxf (or elv files?) - lines are scaled.
 
 work done:
 1. add clickable events changing color of lines
@@ -34,9 +36,10 @@ work done:
     went with "elv" file format
 13. make colors different for lines w elevation
 8. make altitude changer focus
+18. for some reason not all dxf file is displayed. certainly exists in the dxf file, but then somehow we don't get it out - had a fixed file left to be loaded for dxf
 
 dependencies:
 wxpython
 numpy from http://www.lfd.uci.edu/~gohlke/pythonlibs/ (if you need 64 bit) or http://numpy.scipy.org/
 gdal from http://www.lfd.uci.edu/~gohlke/pythonlibs/
-gdal from http://www.lfd.uci.edu/~gohlke/pythonlibs/
+dxfwriter https://pypi.python.org/pypi/dxfwrite/#downloads

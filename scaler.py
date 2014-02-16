@@ -32,6 +32,10 @@ class Scaler():
         p = point[0]-self.min_x, point[1]-self.min_y
         p = p[0] * self.ratio, p[1]*self.ratio
         return p
+    def inverse(self, point):
+        p=point[0]/self.ratio, point[1]/self.ratio
+        p=p[0]+self.min_x, p[1]+self.min_y
+        return p
         
 
 import unittest
@@ -57,6 +61,10 @@ class TestScaler(unittest.TestCase):
         self.assertEqual( scaler.scale_x, 1 )
         self.assertEqual( scaler.scale_y, 2 )
         self.assertEqual( (1,2), scaler.locate( (1600, 4200) ) )
+    def test_inverse(self):
+        scaler = Scaler(100, 200, 1500, 4000)
+        scaler.set_scale_y( 2 )
+        self.assertEqual( scaler.inverse((1,2)), (1600, 4200 ) )
                 
 if __name__ == "__main__":
     unittest.main()
