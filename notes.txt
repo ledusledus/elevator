@@ -15,10 +15,8 @@ http://www.lfd.uci.edu/~gohlke/pythonlibs/
 work to do:
 4. minimize maximum zoom.
 6. clean up the demo app
-9. make altitude changer not take much space
 10. make different dxf types be different
 11. make the sample tif file smaller low pri - unclear if needed at all.
-12. make the log warning message go away
 16. coding style
 17. seperate elv file module
 19. allow moving stuff around
@@ -37,6 +35,8 @@ work done:
 13. make colors different for lines w elevation
 8. make altitude changer focus
 18. for some reason not all dxf file is displayed. certainly exists in the dxf file, but then somehow we don't get it out - had a fixed file left to be loaded for dxf
+9. make altitude changer not take much space
+12. make the log warning message go away
 
 dependencies:
 wxpython
