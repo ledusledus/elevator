@@ -1,11 +1,11 @@
 from dxfwrite import DXFEngine
 
-def WriteDXF(filename, lines, elevations):
+def WriteDXF(filename, lines, elevations, scaler):
     drawing = DXFEngine.drawing(filename)
     for idx in xrange(len( lines )):
         points = []
         for point in lines[idx]:
-            points.append((point[0], point[1]))
+            points.append(scaler.inverse((point[0], point[1])))
         drawing.add(DXFEngine.polyline(points, polyline_elevation = (0,0,elevations[idx])))
     drawing.save()
 

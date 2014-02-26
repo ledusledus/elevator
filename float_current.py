@@ -80,7 +80,7 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             
             ##Create a sizer to manage the Canvas and message window
             MainSizer = wx.BoxSizer(wx.VERTICAL)
-            MainSizer.Add(NC, 4, wx.EXPAND)
+            MainSizer.Add(NC, 1000, wx.EXPAND)
             MainSizer.Add(self.ElevationWindow, 1, wx.EXPAND | wx.ALL, 5)
 
             self.SetSizer(MainSizer)
@@ -141,7 +141,7 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
 
         def DrawDxf(self, path):
             from dxf_reader import DXFReader
-            dxf = DXFReader("sample_export_from_ocad2.dxf")
+            dxf = DXFReader(path)
             self.lines = []
             self.elevations = []
             for entity in dxf.lines():
@@ -199,7 +199,7 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             if dlg.ShowModal() == wx.ID_OK:
                 path = dlg.GetPath()
                 if path[-4:].lower() == ".dxf": #todo: make "isDxfFile" 
-                    dxf_writer.WriteDXF(path, self.lines, self.elevations)
+                    dxf_writer.WriteDXF(path, self.lines, self.elevations, self.scaler)
                 if path[-4:].lower() == ".elv":
                     self.WriteElv(path, self.lines, self.elevations)
 
@@ -227,23 +227,23 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             self.UnBindAllMouseEvents()
             Canvas = self.Canvas
             Canvas.InitAll()
-
-            imageFile = 'back.tif'
+            imageFile = 'kopejais.tif' # this was back.tif
             data = open(imageFile, "rb").read()
             # convert to a data stream
             stream = cStringIO.StringIO(data)
-            # show the bitmap, (5, 5) are upper left corner coordinates
+            # this allows us to disable logging from tif reader module
+            noLog = wx.LogNull()
             image = wx.ImageFromStream( stream )
+            # this enables logging back
+            del noLog
             # would this become fast if we did not have a scaled bitmap?
             ORIGINAL_Y = 200
             BitMap = Canvas.AddScaledBitmap(image, (0, ORIGINAL_Y), Height=ORIGINAL_Y)
-
             from tiff_size import GetTiffSize
             sizing = GetTiffSize(imageFile)
             from scaler import Scaler
             self.scaler = Scaler(sizing[4]-sizing[2], sizing[5]-sizing[3], sizing[2], sizing[3])
             self.scaler.set_scale_y(ORIGINAL_Y)
-
             self.Canvas.ZoomToBB()
 
         def LineGotHit(self, Object):
