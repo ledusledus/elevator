@@ -3,7 +3,6 @@ import cStringIO
 
 try:
     import numpy as N
-    import numpy.random as RandomArray
     haveNumpy = True
     #print "Using numpy, version:", N.__version__
 except ImportError:
@@ -31,37 +30,22 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
     import time, random
 
     class DrawFrame(wx.Frame):
-
-        """
-        A frame used for the FloatCanvas Demo
-
-        """
-
-
         def __init__(self,parent, id,title,position,size):
             wx.Frame.__init__(self,parent, id,title,position, size)
 
-            ## Set up the MenuBar
-            MenuBar = wx.MenuBar()
+            MenuBar = wx.MenuBar()                     
 
             file_menu = wx.Menu()
-            item = file_menu.Append(-1, "&Close","Close this frame")
+            item = file_menu.Append(-1, "&Close","Close")
             self.Bind(wx.EVT_MENU, self.OnQuit, item)
-
             item = file_menu.Append(-1, "&Save File","Save the updated dxf")
             self.Bind(wx.EVT_MENU, self.OnSaveFILE, item)
-
             item = file_menu.Append(-1, "&Open File","Open vector file")
             self.Bind(wx.EVT_MENU, self.OnOpenFILE, item)
 
             MenuBar.Append(file_menu, "&File")
             
             draw_menu = wx.Menu()
-
-            item = draw_menu.Append(-1, "&Hit Test","Run a test of the hit test code")
-            self.Bind(wx.EVT_MENU, self.TestHitTest, item)
-
-            MenuBar.Append(draw_menu, "&Tests")
 
             view_menu = wx.Menu()
             item = view_menu.Append(-1, "Zoom to &Fit","Zoom to fit the window")
@@ -112,6 +96,14 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
 
             return None
         def OnKillFocus(self, object):
+            """ 
+            we always want to be on 
+            focuse for the elevation window
+            if we move away and we move to our floatcanvas, then 
+            we put it back in elevation window
+            there might be a better way to do so, but I have 
+            not found one
+            """
             if type(object.GetWindow()) is wx.lib.floatcanvas.FloatCanvas.FloatCanvas:
                 self.ElevationWindow.SetFocus()
                 self.ElevationWindow.SelectAll()
@@ -122,24 +114,6 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
                     self.elevations[self.lastline.line_idx] = float(self.ElevationWindow.GetValue())
                 except ValueError:
                     self.elevations[self.lastline.line_idx]
-
-        def BindAllMouseEvents(self):
-            if not self.EventsAreBound:
-                ## Here is how you catch FloatCanvas mouse events
-                self.Canvas.Bind(FloatCanvas.EVT_LEFT_DOWN, self.OnLeftDown) 
-                self.Canvas.Bind(FloatCanvas.EVT_LEFT_UP, self.OnLeftUp)
-                self.Canvas.Bind(FloatCanvas.EVT_LEFT_DCLICK, self.OnLeftDouble) 
-
-                self.Canvas.Bind(FloatCanvas.EVT_MIDDLE_DOWN, self.OnMiddleDown) 
-                self.Canvas.Bind(FloatCanvas.EVT_MIDDLE_UP, self.OnMiddleUp) 
-                self.Canvas.Bind(FloatCanvas.EVT_MIDDLE_DCLICK, self.OnMiddleDouble) 
-
-                self.Canvas.Bind(FloatCanvas.EVT_RIGHT_DOWN, self.OnRightDown) 
-                self.Canvas.Bind(FloatCanvas.EVT_RIGHT_UP, self.OnRightUp) 
-                self.Canvas.Bind(FloatCanvas.EVT_RIGHT_DCLICK, self.OnRightDouble) 
-
-            self.EventsAreBound = True
-
 
         def UnBindAllMouseEvents(self):
             ## Here is how you unbind FloatCanvas mouse events
@@ -229,18 +203,10 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
                 if path[-4:].lower() == ".elv":
                     self.WriteElv(path, self.lines, self.elevations)
 
-
-        def OnMove(self, event):
-            """
-            Updates the status bar with the world coordinates
-            """
-            self.SetStatusText("%.2f, %.2f"%tuple(event.Coords))
-            event.Skip()
-
         def OnAbout(self, event):
             dlg = wx.MessageDialog(self,
-                                   "This is a small program to demonstrate\n"
-                                   "the use of the FloatCanvas\n",
+                                   "This is a small program to attach elevation\n"
+                                   "to lines traced over contours\n",
                                    "About Me",
                                    wx.OK | wx.ICON_INFORMATION)
             dlg.ShowModal()
@@ -249,23 +215,17 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
         def ZoomToFit(self,event):
             self.Canvas.ZoomToBB()
 
-        def Clear(self,event = None):
-            self.UnBindAllMouseEvents()
-            self.Canvas.InitAll()
-            self.Canvas.Draw()
-
         def OnQuit(self,event):
             self.Close(True)
 
         def OnCloseWindow(self, event):
             self.Destroy()
  
-        def TestHitTest(self, event=None):
+        def ShowAll(self, event=None):
             wx.GetApp().Yield(True)
 
             self.UnBindAllMouseEvents()
             Canvas = self.Canvas
-
             Canvas.InitAll()
 
             imageFile = 'back.tif'
@@ -287,7 +247,6 @@ def BuildDrawFrame(): # this gets called when needed, rather than on import
             self.Canvas.ZoomToBB()
 
         def LineGotHit(self, Object):
-            print "LineGotHit"
             if self.lastline!=None:
                 self.lastline.SetLineColor(_ColorFromElevation(self.elevations[self.lastline.line_idx]))
             self.lastline = Object
@@ -310,18 +269,18 @@ if __name__ == "__main__":
         raise ImportError(errorText)
     StartUpDemo = "hit" # the default
 
-    class DemoApp(wx.App):
+    class ElevatorApp(wx.App):
         def __init__(self, *args, **kwargs):
             wx.App.__init__(self, *args, **kwargs)
 
         def OnInit(self):
             DrawFrame = BuildDrawFrame()
-            frame = DrawFrame(None, -1, "FloatCanvas Demo App",wx.DefaultPosition,(700,700))
+            frame = DrawFrame(None, -1, "Elevator: atttaching elevation to contours",wx.DefaultPosition,(700,700))
             self.SetTopWindow(frame)
             frame.Show()
-            frame.TestHitTest()
+            frame.ShowAll()
             return True
 
-    app = DemoApp(False)# put in True if you want output to go to it's own window.
+    app = ElevatorApp(False)# put in True if you want output to go to it's own window.
     app.MainLoop()
 
